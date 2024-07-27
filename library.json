@@ -1,0 +1,18 @@
+{
+    "name": "sd-card",
+    "version": "1.0.0",
+    "description": "Portable, multi-instance driver for SD card file IO",
+    "keywords": "embedded, driver, hal, sd, sd-card, file, read, write",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/johnmgreenwell/sd-card"
+    },
+    "license": "MIT",
+    "frameworks": "*",
+    "platforms": "*",
+    "build": {
+        "flags": [
+        "-I../../include"
+        ]
+    }
+}
