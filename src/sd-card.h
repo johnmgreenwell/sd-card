@@ -15,10 +15,13 @@
 #ifndef __SD_H__
 #define __SD_H__
 
-#include <Arduino.h>
+#include "hal.h"
 
 #include "utility/SdFat.h"
 #include "utility/SdFatUtil.h"
+
+namespace PeripheralIO
+{
 
 #define FILE_READ O_READ
 #define FILE_WRITE (O_READ | O_WRITE | O_CREAT | O_APPEND)
@@ -55,7 +58,7 @@ namespace SDLib {
       using Print::write;
   };
 
-  class SDClass {
+  class SDCard {
 
     private:
       // These are required for initialisation and use of sdfatlib
@@ -66,10 +69,13 @@ namespace SDLib {
       // my quick&dirty iterator, should be replaced
       SdFile getParentDir(const char *filepath, int *indx);
     public:
+
+      SDCard(HAL::SPI& spi, uint8_t csPin);
+
       // This needs to be called to set up the connection to the SD card
       // before other methods are used.
-      bool begin(uint8_t csPin = SD_CHIP_SELECT_PIN);
-      bool begin(uint32_t clock, uint8_t csPin);
+      bool begin();
+    //   bool begin(uint32_t clock, uint8_t csPin);
 
       //call this when a card is removed. It will allow you to insert and initialise a new card.
       void end();
@@ -119,8 +125,6 @@ namespace SDLib {
       friend bool callback_openPath(SdFile&, const char *, bool, void *);
   };
 
-  extern SDClass SD;
-
 };
 
 // We enclose File and SD classes in namespace SDLib to avoid conflicts
@@ -132,7 +136,11 @@ using namespace SDLib;
 // This allows sketches to use SDLib::File with other libraries (in the
 // sketch you must use SDFile instead of File to disambiguate)
 typedef SDLib::File    SDFile;
-typedef SDLib::SDClass SDFileSystemClass;
+typedef SDLib::SDCard  SDFileSystemClass;
 #define SDFileSystem   SDLib::SD
 
+}
+
 #endif
+
+// EOF

@@ -12,7 +12,10 @@
 
 */
 
-#include <SD.h>
+#include <sd-card.h>
+
+namespace PeripheralIO
+{
 
 /* for debugging file open/close leaks
    uint8_t nfilecount=0;
@@ -166,3 +169,6 @@ File::operator bool() {
   return false;
 }
 
+}
+
+// EOF

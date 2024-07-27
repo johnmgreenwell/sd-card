@@ -50,7 +50,10 @@
 
 */
 
-#include "SD.h"
+#include "sd-card.h"
+
+namespace PeripheralIO
+{
 
 namespace SDLib {
 
@@ -287,7 +290,7 @@ namespace SDLib {
     Callback used to open a file specified by a filepath that may
     specify one or more directories above it.
 
-    Expects the context object to be an instance of `SDClass` and
+    Expects the context object to be an instance of `SDCard` and
     will use the `file` property of the instance to open the requested
     file/directory with the associated file open mode property.
 
@@ -298,7 +301,7 @@ namespace SDLib {
     from descending further. (This may be unnecessary.)
 
     if (isLastComponent) {
-    SDClass *p_SD = static_cast<SDClass*>(object);
+    SDCard *p_SD = static_cast<SDCard*>(object);
     p_SD->file.open(parentDir, filePathComponent, p_SD->fileOpenMode);
     if (p_SD->fileOpenMode == FILE_WRITE) {
       p_SD->file.seekSet(p_SD->file.fileSize());
@@ -336,9 +339,11 @@ namespace SDLib {
 
   /* Implementation of class used to create `SDCard` object. */
 
+  SDCard::SDCard(HAL::SPI& spi, uint8_t csPin)
+  : card(spi, csPin)
+  { }
 
-
-  bool SDClass::begin(uint8_t csPin) {
+  bool SDCard::begin() {
     if (root.isOpen()) {
       root.close();
     }
@@ -350,29 +355,29 @@ namespace SDLib {
       Return true if initialization succeeds, false otherwise.
 
     */
-    return card.init(SPI_HALF_SPEED, csPin) &&
+    return card.init() &&
            volume.init(card) &&
            root.openRoot(volume);
   }
 
-  bool SDClass::begin(uint32_t clock, uint8_t csPin) {
-    if (root.isOpen()) {
-      root.close();
-    }
+//   bool SDCard::begin(uint32_t clock, uint8_t csPin) {
+//     if (root.isOpen()) {
+//       root.close();
+//     }
 
-    return card.init(SPI_HALF_SPEED, csPin) &&
-           card.setSpiClock(clock) &&
-           volume.init(card) &&
-           root.openRoot(volume);
-  }
+//     return card.init(SPI_HALF_SPEED, csPin) &&
+//            card.setSpiClock(clock) &&
+//            volume.init(card) &&
+//            root.openRoot(volume);
+//   }
 
   //call this when a card is removed. It will allow you to insert and initialise a new card.
-  void SDClass::end() {
+  void SDCard::end() {
     root.close();
   }
 
   // this little helper is used to traverse paths
-  SdFile SDClass::getParentDir(const char *filepath, int *index) {
+  SdFile SDCard::getParentDir(const char *filepath, int *index) {
     // get parent directory
     SdFile d1;
     SdFile d2;
@@ -431,13 +436,13 @@ namespace SDLib {
   }
 
 
-  File SDClass::open(const char *filepath, uint8_t mode) {
+  File SDCard::open(const char *filepath, uint8_t mode) {
     /*
 
        Open the supplied file path for reading or writing.
 
        The file content can be accessed via the `file` property of
-       the `SDClass` object--this property is currently
+       the `SDCard` object--this property is currently
        a standard `SdFile` object from `sdfatlib`.
 
        Defaults to read only.
@@ -490,13 +495,13 @@ namespace SDLib {
 
 
   /*
-    File SDClass::open(char *filepath, uint8_t mode) {
+    File SDCard::open(char *filepath, uint8_t mode) {
     //
 
        Open the supplied file path for reading or writing.
 
        The file content can be accessed via the `file` property of
-       the `SDClass` object--this property is currently
+       the `SDCard` object--this property is currently
        a standard `SdFile` object from `sdfatlib`.
 
        Defaults to read only.
@@ -525,7 +530,7 @@ namespace SDLib {
   */
 
 
-  //bool SDClass::close() {
+  //bool SDCard::close() {
   //  /*
   //
   //    Closes the file opened by the `open` method.
@@ -535,7 +540,7 @@ namespace SDLib {
   //}
 
 
-  bool SDClass::exists(const char *filepath) {
+  bool SDCard::exists(const char *filepath) {
     /*
 
        Returns true if the supplied file path exists.
@@ -545,7 +550,7 @@ namespace SDLib {
   }
 
 
-  //bool SDClass::exists(char *filepath, SdFile& parentDir) {
+  //bool SDCard::exists(char *filepath, SdFile& parentDir) {
   //  /*
   //
   //     Returns true if the supplied file path rooted at `parentDir`
@@ -556,7 +561,7 @@ namespace SDLib {
   //}
 
 
-  bool SDClass::mkdir(const char *filepath) {
+  bool SDCard::mkdir(const char *filepath) {
     /*
 
       Makes a single directory or a hierarchy of directories.
@@ -567,7 +572,7 @@ namespace SDLib {
     return walkPath(filepath, root, callback_makeDirPath);
   }
 
-  bool SDClass::rmdir(const char *filepath) {
+  bool SDCard::rmdir(const char *filepath) {
     /*
 
       Remove a single directory or a hierarchy of directories.
@@ -578,7 +583,7 @@ namespace SDLib {
     return walkPath(filepath, root, callback_rmdir);
   }
 
-  bool SDClass::remove(const char *filepath) {
+  bool SDCard::remove(const char *filepath) {
     return walkPath(filepath, root, callback_remove);
   }
 
@@ -634,6 +639,8 @@ namespace SDLib {
     }
   }
 
-  SDClass SD;
-
 };
+
+}
+
+// EOF
