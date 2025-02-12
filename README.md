@@ -9,12 +9,7 @@ image:https://github.com/{repository-owner}/{repository-name}/actions/workflows/
 
 The SD library allows for reading from and writing to SD cards.
 
-For more information about this library please visit us at
-http://www.arduino.cc/en/Reference/{repository-name}
-
 Modified by John Greenwell to adapt driver for custom HAL support, 2024.
-
-## Usage
 
 For this modified version, the following hardware abstraction layer (HAL) requirements must be satisfied:
 
@@ -28,3 +23,6 @@ For this modified version, the following hardware abstraction layer (HAL) requir
 
 Some further requirements may also be found. Typically, these will mirror the Arduino framework and should be added to `hal.h`.
 * For example, this driver depends on the Arduino framework "Stream" class, and an equivalent will need to be provided, in the HAL or otherwise.
+
+For more information about this library please visit us at
+http://www.arduino.cc/en/Reference/{repository-name}
